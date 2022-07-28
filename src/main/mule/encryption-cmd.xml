@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e03780da-ce6e-4da7-a2a2-f83a680a8d7a" >
+		<http:listener-connection host="${http.host}" port="${http.port}" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="4cd2a73f-0cfc-4f32-9853-a5a1f4123ce7" file="${env}.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="b01ec85f-15ce-492e-963d-6cd84d167d36" key="Np11PX48G6AfqREzzAEycnh0QKn58mnQtGYtRYz3ZWk=" file="dev.yaml"/>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="80caa684-7131-4724-b01d-8ee5a7650e8d" >
+		<db:my-sql-connection host="${http.db.host}" port="${http.db.port}" user="${http.db.username}" password="${http.db.password}" />
+	</db:config>
+	<flow name="encryption-cmdFlow" doc:id="087e8418-e0f9-4775-af60-fa3de318b634" >
+		<http:listener doc:name="Listener" doc:id="c1452d6f-2e65-40c4-8175-26d248d4edde" config-ref="HTTP_Listener_config" path="${http.path}"/>
+		<db:select doc:name="Select" doc:id="67ff8f80-6d40-4b48-b2e0-c1c983fd8d94" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM karthik.employee;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="71fe2704-c5a4-469d-9c54-bf62ec1c51ed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
